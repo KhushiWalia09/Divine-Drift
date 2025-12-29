@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -14,8 +15,10 @@ canvas {
   height: 100%;
   background: #cceeff;
   border: 2px solid #333;
-  display: block; /* Removes potential whitespace */
-  border-radius: 4px; /* Optional: adds a slight curve to corners */
+  display: block;
+  /* Removes potential whitespace */
+  border-radius: 4px;
+  /* Optional: adds a slight curve to corners */
 }
 
 /* Hover effect */
@@ -29,6 +32,7 @@ canvas {
   transform: translateX(-50%) scale(0.98);
   box-shadow: 0 4px 10px rgba(255, 61, 0, 0.4);
 }
+
 .restart-btn {
   position: absolute;
   top: 62%;
@@ -47,21 +51,83 @@ canvas {
   cursor: pointer;
   box-shadow: 0 6px 15px rgba(255, 61, 0, 0.4);
   transition: transform 0.2s ease;
-  z-index: 20;/* ensure it stays above canvas */
+  z-index: 20;
+  /* ensure it stays above canvas */
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 10px rgba(255, 61, 0, 0.4); }
-  50% { box-shadow: 0 0 20px rgba(255, 61, 0, 0.7); }
-  100% { box-shadow: 0 0 10px rgba(255, 61, 0, 0.4); }
+  0% {
+    box-shadow: 0 0 10px rgba(255, 61, 0, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(255, 61, 0, 0.7);
+  }
+
+  100% {
+    box-shadow: 0 0 10px rgba(255, 61, 0, 0.4);
+  }
 }
+
 .game-container {
   position: relative;
   width: 100%;
-  max-width: 900px; /* Logical Max Width */
-  aspect-ratio: 900 / 700; /* Maintains the game's aspect ratio */
-  margin: 10px auto; /* center horizontally */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  max-width: 900px;
+  /* Logical Max Width */
+  aspect-ratio: 900 / 700;
+  /* Maintains the game's aspect ratio */
+  margin: 10px auto;
+  /* center horizontally */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  /* Ensure controls stay within this or relative to viewport if needed, 
+     but relative to game-container keeps them nicely overlaid */
+}
+
+/* Mobile Controls */
+.mobile-controls {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+  pointer-events: none;
+  /* Let clicks pass through empty space */
+  z-index: 10;
+  opacity: 0;
+  /* Hidden by default on desktop */
+}
+
+.control-btn {
+  pointer-events: auto;
+  /* Re-enable clicks on buttons */
+  background: rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s, background 0.1s;
+}
+
+.control-btn:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* Show controls only on smaller screens (tablets/phones) */
+@media (max-width: 1024px) {
+  .mobile-controls {
+    opacity: 1;
+  }
 }
 
 /* Make Typography Responsive */
@@ -69,5 +135,6 @@ h1 {
   text-align: center;
   margin: 10px 0;
   font-family: Arial, sans-serif;
-  font-size: clamp(1.5rem, 4vw, 2.5rem); /* Responsive font size */
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  /* Responsive font size */
 }

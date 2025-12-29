@@ -71,6 +71,28 @@ canvas.addEventListener("touchend", (e) => {
   e.preventDefault();
   keys[" "] = false;
 }, { passive: false });
+
+// Mobile Directional Controls
+const btnLeft = document.getElementById("btnLeft");
+const btnRight = document.getElementById("btnRight");
+
+const handleTouchStart = (key) => (e) => {
+  e.preventDefault();
+  keys[key] = true;
+};
+
+const handleTouchEnd = (key) => (e) => {
+  e.preventDefault();
+  keys[key] = false;
+};
+
+// Left Button
+btnLeft.addEventListener("touchstart", handleTouchStart("ArrowLeft"), { passive: false });
+btnLeft.addEventListener("touchend", handleTouchEnd("ArrowLeft"), { passive: false });
+
+// Right Button
+btnRight.addEventListener("touchstart", handleTouchStart("ArrowRight"), { passive: false });
+btnRight.addEventListener("touchend", handleTouchEnd("ArrowRight"), { passive: false });
 // =======================
 // Score
 // =======================
