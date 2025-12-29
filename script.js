@@ -75,6 +75,7 @@ canvas.addEventListener("touchend", (e) => {
 // Mobile Directional Controls
 const btnLeft = document.getElementById("btnLeft");
 const btnRight = document.getElementById("btnRight");
+const btnFly = document.getElementById("btnFly");
 
 const handleTouchStart = (key) => (e) => {
   e.preventDefault();
@@ -93,6 +94,10 @@ btnLeft.addEventListener("touchend", handleTouchEnd("ArrowLeft"), { passive: fal
 // Right Button
 btnRight.addEventListener("touchstart", handleTouchStart("ArrowRight"), { passive: false });
 btnRight.addEventListener("touchend", handleTouchEnd("ArrowRight"), { passive: false });
+
+// Fly Button (Up / specific fly action)
+btnFly.addEventListener("touchstart", handleTouchStart(" "), { passive: false });
+btnFly.addEventListener("touchend", handleTouchEnd(" "), { passive: false });
 // =======================
 // Score
 // =======================

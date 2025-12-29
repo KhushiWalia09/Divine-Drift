@@ -91,13 +91,21 @@ canvas {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 30px;
   box-sizing: border-box;
   pointer-events: none;
   /* Let clicks pass through empty space */
   z-index: 10;
   opacity: 0;
   /* Hidden by default on desktop */
+}
+
+.controls-left,
+.controls-right {
+  display: flex;
+  gap: 20px;
+  /* Space between buttons in the same group */
+  pointer-events: auto;
 }
 
 .control-btn {
