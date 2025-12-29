@@ -15,4 +15,4 @@ A 2D browser-based game built using HTML Canvas and JavaScript.
 - Vanilla JavaScript
 
 ## 🌐 Play Online
-👉 https://your-username.github.io/aether-wings/
+👉 https://khushiwalia09.github.io/Divine-Drift/
