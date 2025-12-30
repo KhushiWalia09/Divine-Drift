@@ -251,14 +251,22 @@ function gameLoop() {
     return; // stop the loop
   }
   // Draw score
-  const uiFontSize = isMobile ? 30 : 20;
+  // Draw score/lives
+  const uiFontSize = isMobile ? 28 : 20;
   ctx.fillStyle = "black";
-  ctx.font = `${uiFontSize}px Arial`;
-  ctx.fillText("Score: " + score, 20, isMobile ? 40 : 30);
-  // Draw lives
-  ctx.fillStyle = "black";
-  ctx.font = `${isMobile ? 26 : 18}px Arial`;
-  ctx.fillText("Lives: " + (MAX_HITS - hits), 20, isMobile ? 80 : 55);
+  ctx.font = `bold ${uiFontSize}px Arial`;
+
+  if (isMobile) {
+    ctx.textAlign = "right";
+    ctx.fillText("Score: " + score, GAME_WIDTH - 20, 40);
+    ctx.font = `bold ${isMobile ? 24 : 18}px Arial`;
+    ctx.fillText("Lives: " + (MAX_HITS - hits), GAME_WIDTH - 20, 80);
+    ctx.textAlign = "left"; // reset
+  } else {
+    ctx.fillText("Score: " + score, 20, 30);
+    ctx.font = `bold ${isMobile ? 24 : 18}px Arial`;
+    ctx.fillText("Lives: " + (MAX_HITS - hits), 20, 55);
+  }
 
   // Horizontal movement
   if (keys["ArrowRight"]) angel.x += angel.speedX;
