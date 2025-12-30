@@ -2,7 +2,36 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 const restartBtn = document.getElementById("restartBtn");
+let floatOffset = 0;
+// =======================
+// Clouds (GLOBAL)
+// =======================
+let clouds = [
+  { x: 100, y: 120, speed: 0.3, size: 50 },
+  { x: 350, y: 80, speed: 0.2, size: 70 },
+  { x: 650, y: 150, speed: 0.25, size: 60 },
+];
 
+function drawCloud(cloud) {
+  ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+  ctx.beginPath();
+  ctx.arc(cloud.x, cloud.y, cloud.size * 0.5, 0, Math.PI * 2);
+  ctx.arc(
+    cloud.x + cloud.size * 0.4,
+    cloud.y - 10,
+    cloud.size * 0.6,
+    0,
+    Math.PI * 2
+  );
+  ctx.arc(
+    cloud.x + cloud.size * 0.8,
+    cloud.y,
+    cloud.size * 0.5,
+    0,
+    Math.PI * 2
+  );
+  ctx.fill();
+}
 // Logical game size (CSS pixels)
 const GAME_WIDTH = 900;
 const GAME_HEIGHT = 700;
@@ -34,7 +63,18 @@ ctx.imageSmoothingEnabled = false;
 // =======================
 const angelImg = new Image();
 angelImg.src = "angel.png";
-
+// =======================
+// Sound Effects
+// =======================
+const flapSound = new Audio("sounds/flap.m4a");
+const collectSound = new Audio("sounds/collect.m4a");
+const gameOverSound = new Audio("sounds/gameover.m4a");
+const obstacleHitSound = new Audio("sounds/obstacle.m4a");
+// Mobile-friendly settings
+flapSound.volume = 0.4;
+collectSound.volume = 0.5;
+gameOverSound.volume = 0.6;
+obstacleHitSound.volume = 0.5;
 // Angel Object (Physics) =======================
 let angel = {
   x: 100,
@@ -62,15 +102,23 @@ document.addEventListener("keyup", (e) => {
 // =======================
 // Touch Handling (Mobile)
 // =======================
-canvas.addEventListener("touchstart", (e) => {
-  e.preventDefault(); // Prevent scrolling
-  keys[" "] = true; // Simulate spacebar press
-}, { passive: false });
+canvas.addEventListener(
+  "touchstart",
+  (e) => {
+    e.preventDefault(); // Prevent scrolling
+    keys[" "] = true; // Simulate spacebar press
+  },
+  { passive: false }
+);
 
-canvas.addEventListener("touchend", (e) => {
-  e.preventDefault();
-  keys[" "] = false;
-}, { passive: false });
+canvas.addEventListener(
+  "touchend",
+  (e) => {
+    e.preventDefault();
+    keys[" "] = false;
+  },
+  { passive: false }
+);
 
 // Mobile Directional Controls
 const btnLeft = document.getElementById("btnLeft");
@@ -86,17 +134,44 @@ const handleTouchEnd = (key) => (e) => {
   e.preventDefault();
   keys[key] = false;
 };
+let soundUnlocked = false;
+
+function unlockSounds() {
+  if (soundUnlocked) return;
+
+  flapSound
+    .play()
+    .then(() => {
+      flapSound.pause();
+      flapSound.currentTime = 0;
+      soundUnlocked = true;
+    })
+    .catch(() => {});
+}
+
+canvas.addEventListener("touchstart", unlockSounds, { once: true });
+document.addEventListener("keydown", unlockSounds, { once: true });
 
 // Left Button
-btnLeft.addEventListener("touchstart", handleTouchStart("ArrowLeft"), { passive: false });
-btnLeft.addEventListener("touchend", handleTouchEnd("ArrowLeft"), { passive: false });
+btnLeft.addEventListener("touchstart", handleTouchStart("ArrowLeft"), {
+  passive: false,
+});
+btnLeft.addEventListener("touchend", handleTouchEnd("ArrowLeft"), {
+  passive: false,
+});
 
 // Right Button
-btnRight.addEventListener("touchstart", handleTouchStart("ArrowRight"), { passive: false });
-btnRight.addEventListener("touchend", handleTouchEnd("ArrowRight"), { passive: false });
+btnRight.addEventListener("touchstart", handleTouchStart("ArrowRight"), {
+  passive: false,
+});
+btnRight.addEventListener("touchend", handleTouchEnd("ArrowRight"), {
+  passive: false,
+});
 
 // Fly Button (Up / specific fly action)
-btnFly.addEventListener("touchstart", handleTouchStart(" "), { passive: false });
+btnFly.addEventListener("touchstart", handleTouchStart(" "), {
+  passive: false,
+});
 btnFly.addEventListener("touchend", handleTouchEnd(" "), { passive: false });
 // =======================
 // Score
@@ -123,18 +198,41 @@ let obstacle = {
   height: 40,
   speed: 2,
 };
+let canFlapSound = true;
+let canPlayHitSound = true;
 // =======================
 // Game Loop
 // =======================
 function gameLoop() {
-  ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+  const skyGradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+  skyGradient.addColorStop(0, "#87CEEB"); // sky blue
+  skyGradient.addColorStop(1, "#E0F6FF"); // soft white-blue
+
+  ctx.fillStyle = skyGradient;
+  ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+  // Move & draw clouds (BACKGROUND)
+  clouds.forEach((cloud) => {
+    cloud.x -= cloud.speed;
+
+    // Loop cloud when it leaves screen
+    if (cloud.x + cloud.size * 2 < 0) {
+      cloud.x = GAME_WIDTH + Math.random() * 100;
+      cloud.y = Math.random() * 200 + 50;
+    }
+
+    drawCloud(cloud);
+  }); 
+
   // Draw orb
   ctx.beginPath();
   ctx.arc(orb.x, orb.y, orb.radius, 0, Math.PI * 2);
   ctx.fillStyle = "gold";
+  ctx.shadowColor = "gold";
+  ctx.shadowBlur = 15;
   ctx.fill();
   ctx.closePath();
-
+  ctx.shadowBlur = 0; // Reset shadow
   if (gameOver) {
     ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -169,15 +267,30 @@ function gameLoop() {
   const distance = Math.sqrt(dx * dx + dy * dy);
 
   if (distance < orb.radius + angel.width / 2) {
-    // Collected!
     score += 1;
+
+    collectSound.currentTime = 0;
+    collectSound.play();
+
     orb.x = Math.random() * (GAME_WIDTH - 40) + 20;
     orb.y = Math.random() * (GAME_HEIGHT - 40) + 20;
   }
 
-  // Wing flap (single push)
+  // Continuous flying while key is held
   if (keys[" "] || keys["ArrowUp"]) {
     angel.velocityY = angel.lift;
+
+    // Play sound only once per press
+    if (canFlapSound) {
+      flapSound.currentTime = 0;
+      flapSound.play();
+      canFlapSound = false;
+    }
+  }
+
+  // Reset sound trigger when key released
+  if (!keys[" "] && !keys["ArrowUp"]) {
+    canFlapSound = true;
   }
 
   // Gravity
@@ -208,6 +321,7 @@ function gameLoop() {
   if (obstacle.x + obstacle.width < 0) {
     obstacle.x = GAME_WIDTH + Math.random() * 200;
     obstacle.y = Math.random() * (GAME_HEIGHT - obstacle.height);
+    canPlayHitSound = true;
   }
   // Draw obstacle
   ctx.fillStyle = "#333";
@@ -221,15 +335,26 @@ function gameLoop() {
   ) {
     hits++;
 
-    // Reset obstacle so it doesn't hit repeatedly
-    obstacle.x = GAME_WIDTH + Math.random() * 200;
+    // Play hit sound once per hit
+    if (canPlayHitSound) {
+      obstacleHitSound.currentTime = 0;
+      obstacleHitSound.play();
+      canPlayHitSound = false;
+    }
 
-    if (hits >= MAX_HITS) {
+    obstacle.x = GAME_WIDTH + Math.random() * 200;
+    canPlayHitSound = true;
+    if (hits >= MAX_HITS && !gameOver) {
       gameOver = true;
+      gameOverSound.play();
     }
   }
+  // Floating animation
+  floatOffset += 0.05;
+  const floatY = Math.sin(floatOffset) * 2;
+
   // Draw angel
-  ctx.drawImage(angelImg, angel.x, angel.y, angel.width, angel.height);
+  ctx.drawImage(angelImg, angel.x, angel.y + floatY, angel.width, angel.height);
 
   requestAnimationFrame(gameLoop);
 }
@@ -253,7 +378,7 @@ restartBtn.addEventListener("click", () => {
   orb.y = Math.random() * (GAME_HEIGHT - 40) + 20;
 
   restartBtn.style.display = "none";
-
+  canPlayHitSound = true;
   gameLoop();
 });
 
