@@ -86,6 +86,8 @@ let angel = {
   lift: -6,
   speedX: 4,
 };
+const isMobile = window.innerWidth <= 768;
+
 // =======================
 // Keyboard Handling
 // =======================
@@ -146,7 +148,7 @@ function unlockSounds() {
       flapSound.currentTime = 0;
       soundUnlocked = true;
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 canvas.addEventListener("touchstart", unlockSounds, { once: true });
@@ -222,7 +224,7 @@ function gameLoop() {
     }
 
     drawCloud(cloud);
-  }); 
+  });
 
   // Draw orb
   ctx.beginPath();
@@ -238,22 +240,25 @@ function gameLoop() {
     ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
     ctx.fillStyle = "white";
-    ctx.font = "32px Arial";
-    ctx.fillText("GAME OVER", GAME_WIDTH / 2 - 90, GAME_HEIGHT / 2);
+    ctx.font = isMobile ? "48px Arial" : "32px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("GAME OVER", GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20);
 
-    ctx.font = "20px Arial";
-    ctx.fillText("Score: " + score, GAME_WIDTH / 2 - 45, GAME_HEIGHT / 2 + 40);
+    ctx.font = isMobile ? "32px Arial" : "20px Arial";
+    ctx.fillText("Score: " + score, GAME_WIDTH / 2, GAME_HEIGHT / 2 + 40);
+    ctx.textAlign = "left"; // reset
     restartBtn.style.display = "inline-block";
     return; // stop the loop
   }
   // Draw score
+  const uiFontSize = isMobile ? 30 : 20;
   ctx.fillStyle = "black";
-  ctx.font = "20px Arial";
-  ctx.fillText("Score: " + score, 20, 30);
+  ctx.font = `${uiFontSize}px Arial`;
+  ctx.fillText("Score: " + score, 20, isMobile ? 40 : 30);
   // Draw lives
   ctx.fillStyle = "black";
-  ctx.font = "18px Arial";
-  ctx.fillText("Lives: " + (MAX_HITS - hits), 20, 55);
+  ctx.font = `${isMobile ? 26 : 18}px Arial`;
+  ctx.fillText("Lives: " + (MAX_HITS - hits), 20, isMobile ? 80 : 55);
 
   // Horizontal movement
   if (keys["ArrowRight"]) angel.x += angel.speedX;

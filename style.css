@@ -131,18 +131,75 @@ canvas {
   background: rgba(255, 255, 255, 0.6);
 }
 
-/* Show controls only on smaller screens (tablets/phones) */
-@media (max-width: 1024px) {
+/* Mobile-specific adjustments */
+@media (max-width: 768px) {
+  body {
+    justify-content: center; /* Center content vertically on mobile */
+    background: #cceeff; /* Match canvas background for seamless feel */
+  }
+
+  h1 {
+    font-size: 1.8rem;
+    margin: 10px 0;
+    position: absolute;
+    top: 5px;
+    width: 100%;
+    z-index: 5;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .game-container {
+    height: 100vh;
+    max-width: 100%;
+    margin: 0;
+    aspect-ratio: auto; /* Allow it to fill more space or use script scaling */
+    display: flex;
+    align-items: center;
+    box-shadow: none;
+  }
+
+  canvas {
+    border: none;
+    border-radius: 0;
+  }
+
   .mobile-controls {
+    bottom: 40px;
+    padding: 0 20px;
     opacity: 1;
+  }
+
+  .controls-left {
+    gap: 15px;
+  }
+
+  .control-btn {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    color: #333;
+  }
+
+  .control-btn:active {
+    background: rgba(255, 255, 255, 0.45);
+    transform: scale(0.95);
+  }
+
+  .restart-btn {
+    top: 50%;
+    padding: 16px 40px;
+    font-size: 20px;
   }
 }
 
-/* Make Typography Responsive */
-h1 {
-  text-align: center;
-  margin: 10px 0;
-  font-family: Arial, sans-serif;
-  font-size: clamp(1.5rem, 4vw, 2.5rem);
-  /* Responsive font size */
+/* Landscape/Tablets adjustments */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .mobile-controls {
+    opacity: 1;
+  }
 }
