@@ -282,8 +282,10 @@ function gameLoop() {
   if (distance < orb.radius + angel.width / 2) {
     score += 1;
 
+    // Optimize for responsiveness - stop previous instance if still playing
+    collectSound.pause();
     collectSound.currentTime = 0;
-    collectSound.play();
+    collectSound.play().catch(() => { });
 
     orb.x = Math.random() * (GAME_WIDTH - 40) + 20;
     orb.y = Math.random() * (GAME_HEIGHT - 40) + 20;
@@ -293,17 +295,17 @@ function gameLoop() {
   if (keys[" "] || keys["ArrowUp"]) {
     angel.velocityY = angel.lift;
 
-    // Play sound only once per press
-    if (canFlapSound) {
-      flapSound.currentTime = 0;
-      flapSound.play();
-      canFlapSound = false;
+    // Play sound continuously while flying
+    if (flapSound.paused) {
+      flapSound.loop = true;
+      flapSound.play().catch(() => { });
     }
-  }
-
-  // Reset sound trigger when key released
-  if (!keys[" "] && !keys["ArrowUp"]) {
-    canFlapSound = true;
+  } else {
+    // Stop sound when not flying
+    if (!flapSound.paused) {
+      flapSound.pause();
+      flapSound.currentTime = 0;
+    }
   }
 
   // Gravity
